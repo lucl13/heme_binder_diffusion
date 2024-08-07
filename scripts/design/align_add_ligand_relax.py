@@ -42,29 +42,38 @@ import no_ligand_repack
 import scoring_utils
 
 
-def add_matcher_line_to_pose(pose, residues):
+def add_matcher_line_to_pose(pose, ref_pose, tgt_residues, ref_residues):
+    """
+    Takes REMARK 666 lines from ref pose and adjusts them based on the new positions in tgt_residues
+    """
+    if len(tgt_residues) == 0:
+        return pose
+
+    _str_ref = open(ref_pose.pdb_info().name(), "r").readlines()
+    _ref_remarks = [l for l in _str_ref if "REMARK 666" in l]
+
     _str = pyrosetta.distributed.io.to_pdbstring(pose)
     pdbff = _str.split("\n")
-    ligand_name = pose.residue(pose.size()).name3()
+
     new_pdb = []
     if "ATOM" in pdbff[0]:
-        for i, resno in enumerate(residues):
-            new_pdb.append(f"REMARK 666 MATCH TEMPLATE X {ligand_name}    0 MATCH MOTIF A {pose.residue(resno).name3()}  {resno}  {i+1}  1               \n")
+        for lr in _ref_remarks:
+            new_pdb.append(lr)
         for l in pdbff:
             new_pdb.append(l)
     else:
         for l in pdbff:
             if "HEADER" in l:
                 new_pdb.append(l)
-                for i, resno in enumerate(residues):
-                    new_pdb.append(f"REMARK 666 MATCH TEMPLATE X {ligand_name}    0 MATCH MOTIF A {pose.residue(resno).name3()}  {resno}  {i+1}  1               \n")
+                for lr in _ref_remarks:
+                    new_pdb.append(lr)
+            elif "REMARK 666" in l:  # Skipping existing REMARK 666 lines
+                continue
             else:
                 new_pdb.append(l)
     pose2 = pyrosetta.Pose()
     pyrosetta.rosetta.core.import_pose.pose_from_pdbstring(pose2, "\n".join(new_pdb))
     return pose2
-
-
 
 """
 Parsing user input
@@ -140,7 +149,7 @@ if __name__ == "__main__":
     if NPROC > 1:
         multithreading = f"-multithreading true -multithreading:total_threads {NPROC} -multithreading:interaction_graph_threads {NPROC}"
 
-    pyr.init(f"-dalphaball {DAB} -beta_nov16 {extra_res_fa} -run:preserve_header {multithreading}")
+    pyr.init(f"-dalphaball {DAB} -beta_nov16 {extra_res_fa} -run:preserve_header {multithreading} -gen_potential ")
 
 
     """
@@ -185,7 +194,8 @@ if __name__ == "__main__":
 
 
     # Creating a new pose with correct matcher info
-    pose2 = add_matcher_line_to_pose(pose2, list(matched_residues.keys()))
+    #pose2 = add_matcher_line_to_pose(pose2, list(matched_residues.keys()))
+    pose2 = add_matcher_line_to_pose(pose2, ref_pose, matched_residues, matched_residues)
 
     # Storing ligand info
     ligand_seqpos = pose2.size()

@@ -175,9 +175,18 @@ def add_matcher_line_to_pose(pose, ref_pose, tgt_residues, ref_residues):
 
     _new_remarks = []
 
+    # for i, r in enumerate(tgt_residues):
+    #     _new_remarks.append(f"REMARK 666 MATCH TEMPLATE {tgt_residues[r]['target_chain']} {tgt_residues[r]['target_name']}"
+    #                         f"  {tgt_residues[r]['target_resno']:>3} MATCH MOTIF {tgt_residues[r]['chain']} "
+    #                         f"{tgt_residues[r]['name3']}  {r:>3}  {tgt_residues[r]['cst_no']}  "
+    #                         f"{tgt_residues[r]['cst_no_var']}               \n")
     for i, r in enumerate(tgt_residues):
+        if tgt_residues[r]['target_name'] == ligand_name:
+            target_resno = tgt_residues[r]['target_resno']
+        else:
+            target_resno = tgt_residues[r]['target_resno_in_design']
         _new_remarks.append(f"REMARK 666 MATCH TEMPLATE {tgt_residues[r]['target_chain']} {tgt_residues[r]['target_name']}"
-                            f"  {tgt_residues[r]['target_resno']:>3} MATCH MOTIF {tgt_residues[r]['chain']} "
+                            f"  {target_resno:>3} MATCH MOTIF {tgt_residues[r]['chain']} "
                             f"{tgt_residues[r]['name3']}  {r:>3}  {tgt_residues[r]['cst_no']}  "
                             f"{tgt_residues[r]['cst_no_var']}               \n")
 
@@ -436,7 +445,9 @@ def main():
     assert os.path.exists(DAB), "Please compile DAlphaBall.gcc and manually provide a path to it in this script under the variable `DAB`\n"\
                             "For more info on DAlphaBall, visit: https://www.rosettacommons.org/docs/latest/scripting_documentation/RosettaScripts/Filters/HolesFilter"
 
-    pyr.init(f"{extra_res_fa} -mute all -dalphaball {DAB} -run:preserve_header")
+    #pyr.init(f"{extra_res_fa} -mute all -dalphaball {DAB} -run:preserve_header")
+    pyr.init(f"{extra_res_fa} -mute all -dalphaball {DAB} -run:preserve_header -gen_potential")
+    scorefxn = pyrosetta.create_score_function('beta_genpot.wts')
 
 
     ### Starting processing
@@ -801,11 +812,20 @@ def main():
                     if len(matched_residues) != 0:
                         matched_residues_in_design = {}
                         for r in matched_residues:
+
+                            # find target_resno_in_design
+                            target_resno_in_design = 0
+                            for ii, res_ii in enumerate(trb["con_ref_pdb_idx"]):
+                                if res_ii == (matched_residues[r]["chain"], np.int64(matched_residues[r]["target_resno"])):
+                                    target_resno_in_design = trb["con_hal_pdb_idx"][ii][1]
+                                    break
+
                             for i, res in enumerate(trb["con_ref_pdb_idx"]):    
                                 if res == (matched_residues[r]["chain"], np.int64(r)):
                                     resno_in_design = trb["con_hal_pdb_idx"][i][1]
                                     matched_residues_in_design[resno_in_design] = copy.deepcopy(matched_residues[r])
                                     matched_residues_in_design[resno_in_design]["chain"] = trb["con_hal_pdb_idx"][i][0]
+                                    matched_residues_in_design[resno_in_design]["target_resno_in_design"] = target_resno_in_design
                                     # Adjusting target residue number if it's not ligand. In case of an upstream match
                                     tgt_resno_orig = matched_residues_in_design[resno_in_design]["target_resno"]
                                     if tgt_resno_orig != 0 and pose2.residue(tgt_resno_orig).is_protein()\
@@ -823,6 +843,9 @@ def main():
                                 missing_matched_resnos.append(k)
                         for k in missing_matched_resnos:
                                 matched_residues.__delitem__(k)
+                        
+                        # print(matched_residues_in_design)
+                        # print(matched_residues)
     
                         pose2 = add_matcher_line_to_pose(pose2, ref_pose, matched_residues_in_design, matched_residues)
     
@@ -838,7 +861,7 @@ def main():
         N_PROCESSES = args.nproc
         print(f"Using {N_PROCESSES} processes")
     else:
-        N_PROCESSES = args.nproc - 1
+        N_PROCESSES = args.nproc
         print(f"Using {N_PROCESSES} processes")
 
 

@@ -81,7 +81,8 @@ else:
 
 
 extra_res = " ".join(args.params)
-pyr.init(f"-extra_res_fa {extra_res} -mute all -run:preserve_header")
+pyr.init(f"-extra_res_fa {extra_res} -mute all -run:preserve_header -gen_potential")
+scorefxn = pyrosetta.create_score_function('beta_genpot.wts')
 
 if not os.path.exists(args.outdir):
     os.mkdir(args.outdir)

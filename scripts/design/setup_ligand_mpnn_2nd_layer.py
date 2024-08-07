@@ -98,7 +98,7 @@ def main(args):
     if args.params is not None:
         extra_res_fa = f'-extra_res_fa {" ".join(args.params)}'
 
-    pyr.init(f"{extra_res_fa} -run:preserve_header -mute all")
+    pyr.init(f"{extra_res_fa} -run:preserve_header -mute all -gen_potential")
 
     rotamer_jsonl = None
     if args.rotamer_jsonl is not None:

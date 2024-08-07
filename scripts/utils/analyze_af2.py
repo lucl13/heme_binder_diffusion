@@ -179,6 +179,8 @@ def main():
     pocket_rmsd = args.pocket
 
     pocket_df = pd.DataFrame()
+    pyr.init(f"-mute all -dalphaball -run:preserve_header -gen_potential")
+    scorefxn = pyrosetta.create_score_function('beta_genpot.wts')
 
     posdict = None
     if args.posdict is not None:

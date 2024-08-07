@@ -268,7 +268,7 @@ assert os.path.exists(DAB), "Please compile DAlphaBall.gcc and manually provide 
                         "For more info on DAlphaBall, visit: https://www.rosettacommons.org/docs/latest/scripting_documentation/RosettaScripts/Filters/HolesFilter"
 
 
-pyr.init(f"{extra_res_fa} -dalphaball {DAB} -beta_nov16 -run:preserve_header -mute all "
+pyr.init(f"{extra_res_fa} -dalphaball {DAB} -beta_nov16 -run:preserve_header -mute all -gen_potential "
          f"-multithreading true -multithreading:total_threads {NPROC} -multithreading:interaction_graph_threads {NPROC}")
 
 sfx = pyr.get_fa_scorefxn()
