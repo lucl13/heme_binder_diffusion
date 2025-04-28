@@ -125,16 +125,33 @@ def filter_scores(scores):
     return filtered_scores
 
 
-filters = {"all_cst": [2.0, "<="],
-           "L_SASA": [0.20, "<="],
-           #"COO_hbond": [1.0, "="],
-           "cms_per_atom": [5.0, ">="],
-           "corrected_ddg": [-35.0, "<="],
-           "nlr_totrms": [1.0, "<="],
-           "nlr_SR1_rms": [1.0, "<="]
+# filters = {"all_cst": [5.0, "<="],
+#            "L_SASA": [0.20, "<="],
+#            #"COO_hbond": [1.0, "="],
+#            "cms_per_atom": [5.0, ">="],
+#            "corrected_ddg": [-35.0, "<="],
+#            "nlr_totrms": [1.0, "<="],
+#            "nlr_SR1_rms": [1.0, "<="]
+#         #    "nlr_SR2_rms": [0.5, "<="],
+#         #    "nlr_SR3_rms": [0.5, "<="],
+#         #    "nlr_SR4_rms": [0.5, "<="],
+#            }
+
+
+filters = {}
+
+# filters = {"all_cst": [15.0, "<="],
+#            "L_SASA": [1.00, "<="],
+#            #"COO_hbond": [1.0, "="],
+#            "cms_per_atom": [5.0, ">="],
+#            "corrected_ddg": [-10.0, "<="],
+#            "nlr_totrms": [2.0, "<="],
+#            "nlr_SR1_rms": [2.0, "<="]
         #    "nlr_SR2_rms": [0.5, "<="],
         #    "nlr_SR3_rms": [0.5, "<="],
         #    "nlr_SR4_rms": [0.5, "<="],
-           }
+        #    }
 
-align_atoms = ["N", "N2", "C5", "N3"]
+
+# align_atoms = ["N", "N2", "C5", "N3"]
+# align_atoms = ["O1", "N3", "N1", "N2"]

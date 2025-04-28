@@ -1,4 +1,4 @@
-name: mlfold
+name: mlfold2
 channels:
   - defaults
   - conda-forge

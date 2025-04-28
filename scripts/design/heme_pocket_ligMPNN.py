@@ -453,7 +453,7 @@ for N in range(args.nstruct):
             print(f"  Initial sequence {n} total_score: {scores_iter[n]}")
 
         best_score_id = min(scores_iter, key=scores_iter.get)
-        _pose = poses_iter[n].clone()
+        _pose = poses_iter[best_score_id].clone()
 
         if cstfile is not None:
             cst_mover.add_cst(_pose)

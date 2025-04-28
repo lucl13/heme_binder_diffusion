@@ -214,7 +214,9 @@ def get_packer_layers(pose, ref_resno, cuts, target_atoms, do_not_design=None, a
         if CA_mindist <= cuts[0] and resname not in KEEP_RES:
             residues[0].append(resno)
         elif CA_mindist <= cuts[1] and resname not in KEEP_RES:
-            if CB_mindist < CA_mindist:
+            if resname == "GLY":
+                residues[1].append(resno)
+            elif CB_mindist < CA_mindist:
                 residues[1].append(resno)
             elif CA_mindist < cuts[1]-1.0 and CB_mindist < cuts[1]-1.0:
                 # Special case when the residue is close, but CB is pointing slightly away.
@@ -223,7 +225,7 @@ def get_packer_layers(pose, ref_resno, cuts, target_atoms, do_not_design=None, a
                 residues[2].append(resno)
         elif CA_mindist <= cuts[2]:
             residues[2].append(resno)
-        elif CA_mindist <= cuts[3] and resname not in KEEP_RES:
+        elif CA_mindist <= cuts[3]: # and resname not in KEEP_RES:
             if resname == "GLY":
                 residues[3].append(resno)
             elif CB_mindist < CA_mindist:
